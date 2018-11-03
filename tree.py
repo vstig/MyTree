@@ -9,6 +9,10 @@ class Tree(object):
         self.depth = depth
 
         self.root_node = None
+
+        self.left_child = None
+        self.right_child = None
+
         self.is_fitted = False
 
     def fit(self, X, y):
@@ -22,15 +26,15 @@ class Tree(object):
                 X_i.shape[0] >= self.min_samples_leaf and  # would split make left tree have less than min_samples_leaf?
                 X_j.shape[0] >= self.min_samples_leaf  # would split make right tree have less than min_samples_leaf?
         ):
-            self.root_node.left_child = Tree(depth=self.depth + 1,
+            self.left_child = Tree(depth=self.depth + 1,
                                              min_samples_leaf=self.min_samples_leaf,
                                              max_depth=self.max_depth)
-            self.root_node.left_child.fit(X_i, y)
+            self.left_child.fit(X_i, y)
 
-            self.root_node.right_child = Tree(depth=self.depth + 1,
+            self.right_child = Tree(depth=self.depth + 1,
                                               min_samples_leaf=self.min_samples_leaf,
                                               max_depth=self.max_depth)
-            self.root_node.right_child.fit(X_j, y)
+            self.right_child.fit(X_j, y)
         else:
             self.root_node.is_terminal = True
 
@@ -43,9 +47,9 @@ class Tree(object):
             node = self.root_node
             while not node.is_terminal:
                 if node.which_branch(X) == 'left':
-                    node = node.left_child.root_node
+                    node = node.left_child
                 else:
-                    node = node.right_child.root_node
+                    node = node.right_child
 
             return node.avg
 
@@ -62,13 +66,13 @@ class Tree(object):
                         print('{} < {}'.format(node.feature_split, node.feature_value))
                     else:
                         print('{} != {}'.format(node.feature_split, node.feature_value))
-                    node = node.left_child.root_node
+                    node = node.left_child
                 else:
                     if isinstance(node.feature_value, float):
                         print('{} >= {}'.format(node.feature_split, node.feature_value))
                     else:
                         print('{} == {}'.format(node.feature_split, node.feature_value))
-                    node = node.right_child.root_node
+                    node = node.right_child
                 diff = node.avg - last_y
                 print('\t{} ({}{:.3f})'.format(node.avg, '+' if diff > 0 else '', diff))
                 last_y = node.avg

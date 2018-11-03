@@ -10,9 +10,6 @@ class Node(object):
         self.avg = float('inf')
         self.n_samples = 0
 
-        self.left_child = None
-        self.right_child = None
-
         self.is_terminal = False
 
     def __repr__(self):
