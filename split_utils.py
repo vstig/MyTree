@@ -38,7 +38,7 @@ def get_split_masks(X, feature, val):
     return left_mask, right_mask
 
 
-def split_data(X, feature, val):
+def get_branches(X, feature, val):
     left_mask, right_mask = get_split_masks(X, feature, val)
 
     X_i, X_j = X.loc[left_mask], X.loc[right_mask]
@@ -46,7 +46,7 @@ def split_data(X, feature, val):
     return X_i, X_j
 
 
-def get_split_variance(X, feature, val, y):
+def get_postsplit_variance(X, feature, val, y):
     left_mask, right_mask = get_split_masks(X, feature, val)
 
     y_i, y_j = y.loc[left_mask], y.loc[right_mask]
@@ -57,13 +57,13 @@ def get_split_variance(X, feature, val, y):
 def get_split_stats(X, candidate_splits, y):
     variance_reductions = []
     for (feature, value) in candidate_splits:
-        split_variance = get_split_variance(X, feature, value, y)
+        postsplit_variance = get_postsplit_variance(X, feature, value, y)
         left_branch, right_branch = get_split_masks(X, feature, value)
         # TO-DO: Proactively stop this from happening
-        if not np.isnan(split_variance):
+        if not np.isnan(postsplit_variance):
             split_info = {'feature': feature,
                           'value': value,
-                          'variance_reduction': np.var(y) - split_variance,
+                          'variance_reduction': np.var(y) - postsplit_variance,
                           'n_samples_left': left_branch.sum(),
                           'n_samples_right': right_branch.sum()}
             variance_reductions.append(split_info)

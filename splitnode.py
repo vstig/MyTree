@@ -1,4 +1,4 @@
-from split_utils import get_candidate_splits, get_valid_splits, split_data
+from split_utils import get_candidate_splits, get_valid_splits, get_branches
 import numpy as np
 
 
@@ -25,7 +25,7 @@ class SplitNode(object):
             best_split = valid_splits[0]
             self.feature_split, self.feature_value = best_split['feature'], best_split['value']
 
-            X_i, X_j = split_data(X, self.feature_split, self.feature_value)
+            X_i, X_j = get_branches(X, self.feature_split, self.feature_value)
 
             return (X_i, y.loc[X_i.index]), (X_j, y.loc[X_j.index])
         else:

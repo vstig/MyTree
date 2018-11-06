@@ -66,35 +66,3 @@ class Tree(object):
     @property
     def is_leaf(self):
         return self.left_child is None
-
-    def get_decision_path(self, X):
-        if not self.is_fitted:
-            return "Tree not fit yet"
-        else:
-            node = self.split_node
-            last_y = self.avg
-            print('# Samples: {}\nPopulation average y: {:.3}'.format(self.n_samples, self.avg))
-            branch = self
-            while not branch.is_leaf:
-                if node.which_branch(X) == 'left':
-                    if np.issubdtype(type(X[node.feature_split]), np.number):
-                        print('{} < {}'.format(node.feature_split, node.feature_value))
-                    else:
-                        print('{} != {}'.format(node.feature_split, node.feature_value))
-
-                    branch = branch.left_child
-                else:
-                    if np.issubdtype(type(X[node.feature_split]), np.number):
-                        print('{} >= {}'.format(node.feature_split, node.feature_value))
-                    else:
-                        print('{} == {}'.format(node.feature_split, node.feature_value))
-
-                    branch = branch.right_child
-
-                node = branch.split_node
-
-                diff = branch.avg - last_y
-                print('\t# Samples: {}\tAvg Y: {:.3f} ({}{:.3f})'.format(branch.n_samples,
-                                                                         branch.avg,
-                                                                  '+' if diff > 0 else '', diff))
-                last_y = branch.avg
