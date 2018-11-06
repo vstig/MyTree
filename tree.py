@@ -1,19 +1,18 @@
 from splitnode import SplitNode
-import numpy as np
 
 
 class Tree(object):
     def __init__(self, depth=0, min_samples_leaf=5, max_depth=10, min_reduction=0):
         self.min_samples_leaf = min_samples_leaf
         self.max_depth = max_depth
-        self.min_reduction = 0
+        self.min_reduction = min_reduction
 
         self.depth = depth
 
-        self.split_node = None
+        self.split_node = SplitNode()
 
         self.avg = float('inf')
-        self.n_samples = 0
+        self.n_samples = float('inf')
 
         self.left_child = None
         self.right_child = None
@@ -22,14 +21,13 @@ class Tree(object):
 
     def fit(self, X, y):
         if self.is_fitted:
-            return "Tree has aleady been fitted"
+            return "Tree has already been fitted"
 
         self.avg = y.mean()
         self.n_samples = X.shape[0]
 
-        self.split_node = SplitNode()
-
-        best_split = self.split_node.split_data(X, y, min_reduction=self.min_reduction,
+        best_split = self.split_node.split_data(X, y,
+                                                min_reduction=self.min_reduction,
                                                 min_samples_leaf=self.min_samples_leaf)
 
         if best_split is None or self.depth > self.max_depth:
@@ -39,13 +37,13 @@ class Tree(object):
         else:
             (X_i, y_i), (X_j, y_j) = best_split
             self.left_child = Tree(depth=self.depth + 1,
-                                             min_samples_leaf=self.min_samples_leaf,
-                                             max_depth=self.max_depth)
+                                   min_samples_leaf=self.min_samples_leaf,
+                                   max_depth=self.max_depth)
             self.left_child.fit(X_i, y_i)
 
             self.right_child = Tree(depth=self.depth + 1,
-                                              min_samples_leaf=self.min_samples_leaf,
-                                              max_depth=self.max_depth)
+                                    min_samples_leaf=self.min_samples_leaf,
+                                    max_depth=self.max_depth)
             self.right_child.fit(X_j, y_j)
 
         self.is_fitted = True
