@@ -1,43 +1,35 @@
-from utils import get_candidate_splits, get_best_split, split_data
+from split_utils import get_candidate_splits, get_valid_splits, split_data
 import numpy as np
 
 
-class Node(object):
+class SplitNode(object):
     def __init__(self):
         self.feature_split = None
         self.feature_value = None
 
-        self.avg = float('inf')
-        self.n_samples = 0
-
-        self.is_terminal = False
-
     def __repr__(self):
         return ("feature: {}\n"
                 "split value: {}\n"
-                "# Samples: {}\n"
-                "Avg y: {:0.3f}"
-        ).format(self.feature_split, self.feature_value, self.n_samples, self.avg)
+        ).format(self.feature_split, self.feature_value)
 
-    def split_data(self, X, y):
+    def split_data(self, X, y, **kwargs):
         """
         :param X: dataframe of features
         :param y: column name of feature we are trying to predict
+        optional kwargs: min_samples_leaf, min_reduction
         :return: X_i, X_j, which is X split into 2 samples so as to maximize variance reduction
         """
-        self.avg = X[y].mean()
-        self.n_samples = X.shape[0]
-
-        if X.drop_duplicates().shape[0] == 1:
-            X_i, X_j = None, None
-
-        else:
-            candidate_splits = get_candidate_splits(X, y)
-            self.feature_split, self.feature_value = get_best_split(X, candidate_splits, y)
+        all_splits = get_candidate_splits(X)
+        valid_splits = get_valid_splits(X, all_splits, y, **kwargs)
+        if valid_splits:
+            best_split = valid_splits[0]
+            self.feature_split, self.feature_value = best_split['feature'], best_split['value']
 
             X_i, X_j = split_data(X, self.feature_split, self.feature_value)
 
-        return X_i, X_j
+            return (X_i, y.loc[X_i.index]), (X_j, y.loc[X_j.index])
+        else:
+            return None
 
     def which_branch(self, X):
         """
